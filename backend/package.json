@@ -9,6 +9,7 @@
     "prettify": "prettier --log-level warn --cache --write \"src/**/*.{ts,tsx,js,json,yml,scss}\" \"*.{ts,tsx,js,json,yml,scss}\" --ignore-path .prettierignore"
   },
   "dependencies": {
+    "@trpc/server": "10.37.1",
     "express": "4.18.2"
   },
   "devDependencies": {
