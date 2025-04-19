@@ -1,25 +1,33 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
+import baseConfig from '../eslint.config.js'
 
-export default tseslint.config(
-  { ignores: ['dist'] },
+/** @type {import('eslint').Linter.FlatConfig[]} */
+export default [
+  ...baseConfig,
+
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ['**/*.{ts,tsx}'],
+    files: ['**/*.{ts,tsx,js,jsx}'],
     languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-    },
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
+      parserOptions: {
+        project: ['tsconfig.json', 'tsconfig.node.json', 'tsconfig.app.json'],
+      },
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      'react/react-in-jsx-scope': 'off', // React 17+ не требует импортировать React
+      //   'jsx-a11y/anchor-is-valid': 'off',
     },
-  }
-)
+  },
+
+  {
+    ignores: ['dist', 'node_modules', 'coverage', 'eslint.config.js'],
+  },
+
+  //   🔹 Специальные настройки для Vite-конфига
+  {
+    files: ['./vite.config.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: ['tsconfig.json', 'tsconfig.node.json', 'tsconfig.app.json'],
+      },
+    },
+  },
+]
