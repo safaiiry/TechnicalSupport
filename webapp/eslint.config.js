@@ -14,6 +14,7 @@ export default [
     rules: {
       'react/react-in-jsx-scope': 'off', // React 17+ не требует импортировать React
       //   'jsx-a11y/anchor-is-valid': 'off',
+      'prettier/prettier': ['error', { endOfLine: 'auto' }],
     },
   },
 
