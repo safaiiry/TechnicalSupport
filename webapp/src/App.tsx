@@ -1,17 +1,18 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { getAllIdeasRoute, getViewIdeaRoute, viewIdeaRouteParams } from './lib/routes'
+import { getAllTicketsRoute, getViewTicketRoute, viewTicketRouteParams } from './lib/routes'
 import { TrpcProvider } from './lib/trpc'
+import 'antd/dist/reset.css'
 
-import { AllIdeasPage } from './pages/AllIdeasPage/AllIdeasPage'
-import { ViewIdeaPage } from './pages/ViewIdeaPage/ViewIdeaPage'
+import { TicketPage } from './pages/Ticket/TicketPage'
+import { TicketsPage } from './pages/Tickets/TicketsPage'
 
 export const App = () => {
   return (
     <TrpcProvider>
       <BrowserRouter>
         <Routes>
-          <Route path={getAllIdeasRoute()} element={<AllIdeasPage />} />
-          <Route path={getViewIdeaRoute(viewIdeaRouteParams)} element={<ViewIdeaPage />} />
+          <Route path={getAllTicketsRoute()} element={<TicketsPage />} />
+          <Route path={getViewTicketRoute(viewTicketRouteParams)} element={<TicketPage />} />
         </Routes>
       </BrowserRouter>
     </TrpcProvider>
