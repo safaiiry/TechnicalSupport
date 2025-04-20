@@ -11,6 +11,9 @@ export default [
         project: './tsconfig.json',
       },
     },
+    rules: {
+      'prettier/prettier': ['error', { endOfLine: 'auto' }],
+    },
   },
   {
     ignores: ['dist', 'node_modules', 'coverage', 'eslint.config.js'],
