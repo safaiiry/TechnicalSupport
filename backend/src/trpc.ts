@@ -1,5 +1,6 @@
 import { initTRPC } from '@trpc/server'
 import _ from 'lodash'
+import { z } from 'zod'
 
 const typeNames = ['Инцидент', 'Запрос']
 const priorities = ['Высокий', 'Средний', 'Низкий']
@@ -49,6 +50,10 @@ const trpc = initTRPC.create()
 export const trpcRouter = trpc.router({
   getTickets: trpc.procedure.query(() => {
     return { tickets }
+  }),
+  getTicket: trpc.procedure.input(z.object({ ticketId: z.string() })).query(({ input }) => {
+    const ticket = tickets.find((t) => t.id.toString() === input.ticketId)
+    return { ticket: ticket || null }
   }),
 })
 

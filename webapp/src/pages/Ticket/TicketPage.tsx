@@ -1,10 +1,47 @@
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Tooltip, Button, Form, Row, Upload, Input, Modal, Select, DatePicker } from 'antd'
+import { Tooltip, Button, Form, Row, Upload, Input, Modal, Select, DatePicker, Spin } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
+import dayjs from 'dayjs'
+import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { trpc } from '../../lib/trpc'
 
 export const TicketPage = () => {
   const { ticketId } = useParams<{ ticketId: string }>()
+  const [form] = Form.useForm()
+
+  const { data, isLoading, isError, error } = trpc.getTicket.useQuery({
+    ticketId: ticketId ?? '',
+  })
+
+  useEffect(() => {
+    if (data?.ticket) {
+      form.setFieldsValue({
+        type: { id: data.ticket.typeName },
+        priority: { id: data.ticket.priority },
+        state: { id: data.ticket.stateName },
+        dateCreated: dayjs(data.ticket.dateCreated),
+        dateChanged: dayjs(data.ticket.dateChanged),
+        authorFio: data.ticket.performerFIO,
+        contactFullName: data.ticket.contacts?.split(',')[0],
+        contacts: {
+          phone: data.ticket.contacts?.split(',')[1]?.trim() || '',
+        },
+        performer: { id: data.ticket.performerFIO },
+        description: data.ticket.description,
+      })
+    }
+  }, [data, form])
+
+  if (isLoading) {
+    return <Spin />
+  }
+  if (isError) {
+    return <div>Ошибка: {error.message}</div>
+  }
+  if (!data.ticket) {
+    return <div>Заявка не найдена</div>
+  }
 
   return (
     <div className="ticket">
@@ -18,7 +55,7 @@ export const TicketPage = () => {
       </div>
 
       <div className="ticket__content">
-        <Form name="ticket-form" layout="vertical" className="ticket-form">
+        <Form form={form} name="ticket-form" layout="vertical" className="ticket-form">
           <div className="ticket-form__body">
             <Row className="ticket-form__row">
               <Form.Item label="Тип обращения" name={['type', 'id']}>
