@@ -4,6 +4,7 @@ import TextArea from 'antd/es/input/TextArea'
 import dayjs from 'dayjs'
 import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import SupportLayout from '../../components/Layout/Layout'
 import { trpc } from '../../lib/trpc'
 
 export const TicketPage = () => {
@@ -44,7 +45,7 @@ export const TicketPage = () => {
   }
 
   return (
-    <div className="ticket">
+    <SupportLayout>
       <div className="ticket__header">
         <Tooltip title="К списку заявок">
           <Link to="/tickets" className="ticket__return-link">
@@ -143,6 +144,6 @@ export const TicketPage = () => {
       <Modal title="История заявки" open={false} onCancel={() => {}} footer={null} width="100%">
         {/* TicketHistory здесь может быть добавлен отдельно */}
       </Modal>
-    </div>
+    </SupportLayout>
   )
 }

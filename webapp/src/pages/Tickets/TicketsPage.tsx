@@ -1,6 +1,7 @@
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, Table } from 'antd'
 import { useNavigate } from 'react-router-dom'
+import SupportLayout from '../../components/Layout/Layout'
 import { getViewTicketRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
 
@@ -97,7 +98,7 @@ export const TicketsPage = () => {
   }
 
   return (
-    <div>
+    <SupportLayout>
       <Button type="primary" shape="round" icon={<PlusOutlined />}>
         Создать Заявку
       </Button>
@@ -108,6 +109,6 @@ export const TicketsPage = () => {
         dataSource={data?.tickets || []}
         onRow={(record) => ({ onClick: () => navigate(getViewTicketRoute({ ticketId: String(record.id) })) })}
       />
-    </div>
+    </SupportLayout>
   )
 }
