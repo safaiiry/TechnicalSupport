@@ -1,6 +1,7 @@
 import { UserOutlined } from '@ant-design/icons'
 import { Layout, Menu } from 'antd'
 import React, { ReactNode } from 'react'
+import styles from './Layout.module.less'
 
 const { Header, Content } = Layout
 
@@ -10,19 +11,10 @@ type ISupportLayout = {
 
 export const SupportLayout: React.FC<ISupportLayout> = ({ children }) => {
   return (
-    <Layout>
-      <Header
-        style={{
-          background: 'linear-gradient(to right, #0d3c84, #1e88e5)',
-          color: '#fff',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '0 24px',
-        }}
-      >
-        <div style={{ fontSize: '16px', fontWeight: 'bold' }}>Техническая поддержка</div>
-        <UserOutlined style={{ color: '#fff', fontSize: 18 }} />
+    <Layout className={styles.layoutContainer}>
+      <Header className={styles.layoutHeader}>
+        <div className={styles.layoutTitle}>IT-отдел Горного университета</div>
+        <UserOutlined />
       </Header>
 
       <Menu mode="horizontal" defaultSelectedKeys={['1']}>
@@ -30,9 +22,7 @@ export const SupportLayout: React.FC<ISupportLayout> = ({ children }) => {
         <Menu.Item key="2">Справочная информация</Menu.Item>
       </Menu>
 
-      <Content style={{ padding: '24px', backgroundColor: '#fff', minHeight: 'calc(100vh - 112px)' }}>
-        {children}
-      </Content>
+      <Content className={styles.layoutContent}>{children}</Content>
     </Layout>
   )
 }

@@ -1,0 +1,41 @@
+@import '../../styles/variables.less';
+
+.ticketsPage {
+  &__header {
+    margin-bottom: @spacing-xl;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__createButton {
+    background: @primary-color;
+    border-color: @primary-color;
+    font-weight: 500;
+    height: 44px;
+    padding: 0 @spacing-lg;
+    display: flex;
+    align-items: center;
+    gap: @spacing-sm;
+    box-shadow: 0 2px 4px rgba(255, 111, 0, 0.2);
+    transition: @transition-base;
+
+    &:hover {
+      background: @primary-light;
+      border-color: @primary-light;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(255, 111, 0, 0.25);
+    }
+
+    .anticon {
+      font-size: 18px;
+    }
+  }
+
+  &__table {
+    background: white;
+    padding: @spacing-lg;
+    border-radius: @border-radius-lg;
+    box-shadow: @shadow-md;
+  }
+}

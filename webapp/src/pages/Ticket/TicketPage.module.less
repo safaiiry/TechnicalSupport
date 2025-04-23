@@ -1,0 +1,121 @@
+@import '../../styles/variables.less';
+
+.ticketPage {
+  &__header {
+    display: flex;
+    align-items: center;
+    margin-bottom: @spacing-xxl;
+    gap: @spacing-md;
+
+    h2 {
+      margin: 0;
+      color: @text-color;
+      font-weight: 600;
+      font-size: 24px;
+    }
+  }
+
+  &__backButton {
+    color: @text-light;
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: @border-radius-base;
+    transition: @transition-base;
+    background: white;
+    box-shadow: @shadow-sm;
+
+    &:hover {
+      color: @primary-color;
+      transform: translateX(-2px);
+      box-shadow: @shadow-md;
+    }
+  }
+
+  &__content {
+    display: grid;
+    grid-template-columns: 1fr 500px;
+    gap: @spacing-xl;
+  }
+
+  &__form {
+    background: white;
+    padding: @spacing-xxl;
+    border-radius: @border-radius-lg;
+    box-shadow: @shadow-md;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: @spacing-xl;
+  }
+
+  &__footer {
+    margin-top: @spacing-xxl;
+    padding-top: @spacing-xl;
+    border-top: 1px solid @border-color;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  &__actions {
+    display: flex;
+    gap: @spacing-md;
+  }
+
+  &__historyButton {
+    color: @text-light;
+    border-color: @border-color;
+    background: white;
+    transition: @transition-base;
+
+    &:hover {
+      color: @primary-color;
+      border-color: @primary-color;
+      background: fade(@primary-color, 5%);
+    }
+  }
+
+  &__chat {
+    background: white;
+    border-radius: @border-radius-lg;
+    box-shadow: @shadow-md;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__chatHeader {
+    padding: @spacing-lg @spacing-xl;
+    border-bottom: 1px solid @border-color;
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+      color: @text-color;
+    }
+  }
+
+  &__chatContent {
+    flex: 1;
+    padding: @spacing-lg;
+    overflow-y: auto;
+  }
+
+  &__chatInput {
+    padding: @spacing-lg;
+    border-top: 1px solid @border-color;
+    display: flex;
+    flex-direction: column;
+    gap: @spacing-md;
+
+    .ant-btn {
+      align-self: flex-end;
+    }
+  }
+}

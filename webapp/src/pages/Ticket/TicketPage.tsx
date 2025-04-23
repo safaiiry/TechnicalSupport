@@ -1,11 +1,12 @@
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Tooltip, Button, Form, Row, Upload, Input, Modal, Select, DatePicker, Spin } from 'antd'
+import { Button, Form, Input, DatePicker, Select, Spin, Upload } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import dayjs from 'dayjs'
 import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import SupportLayout from '../../components/Layout/Layout'
 import { trpc } from '../../lib/trpc'
+import styles from './TicketPage.module.less'
 
 export const TicketPage = () => {
   const { ticketId } = useParams<{ ticketId: string }>()
@@ -46,104 +47,82 @@ export const TicketPage = () => {
 
   return (
     <SupportLayout>
-      <div className="ticket__header">
-        <Tooltip title="К списку заявок">
-          <Link to="/tickets" className="ticket__return-link">
+      <div className={styles.ticketPage}>
+        <div className={styles.ticketPage__header}>
+          <Link to="/" className={styles.ticketPage__backButton}>
             <ArrowLeftOutlined />
           </Link>
-        </Tooltip>
-        <h2>Заявка № {ticketId}</h2>
-      </div>
+          <h2>Заявка №{data.ticket.incNumber}</h2>
+        </div>
 
-      <div className="ticket__content">
-        <Form form={form} name="ticket-form" layout="vertical" className="ticket-form">
-          <div className="ticket-form__body">
-            <Row className="ticket-form__row">
-              <Form.Item label="Тип обращения" name={['type', 'id']}>
-                <Select placeholder="Выберите тип обращения" disabled />
-              </Form.Item>
-              <Form.Item label="Модуль" name={['module', 'id']}>
-                <Select placeholder="Выберите модуль" disabled />
-              </Form.Item>
-            </Row>
+        <div className={styles.ticketPage__content}>
+          <div className={styles.ticketPage__form}>
+            <Form form={form} layout="vertical">
+              <div className={styles.ticketPage__row}>
+                <Form.Item label="Тип обращения" name={['type', 'id']}>
+                  <Select disabled />
+                </Form.Item>
+                <Form.Item label="Приоритет" name={['priority', 'id']}>
+                  <Select disabled />
+                </Form.Item>
+              </div>
 
-            <Row className="ticket-form__row">
-              <Form.Item label="Приоритет" name={['priority', 'id']}>
-                <Select placeholder="Выберите приоритет" disabled />
-              </Form.Item>
-              <Form.Item label="Статус" name={['state', 'id']}>
-                <Select placeholder="Выберите статус" disabled />
-              </Form.Item>
-            </Row>
+              <div className={styles.ticketPage__row}>
+                <Form.Item label="Статус" name={['state', 'id']}>
+                  <Select disabled />
+                </Form.Item>
+                <Form.Item label="Ответственный" name={['performer', 'id']}>
+                  <Select disabled />
+                </Form.Item>
+              </div>
 
-            <Row className="ticket-form__row">
-              <Form.Item label="Дата регистрации" name="dateCreated">
-                <DatePicker format="YYYY-MM-DD HH-mm-ss" className="ticket-form__date-picker" disabled />
-              </Form.Item>
-              <Form.Item label="Дата последнего изменения" name="dateChanged">
-                <DatePicker format="YYYY-MM-DD HH-mm-ss" className="ticket-form__date-picker" disabled />
-              </Form.Item>
-            </Row>
+              <div className={styles.ticketPage__row}>
+                <Form.Item label="Дата регистрации" name="dateCreated">
+                  <DatePicker disabled />
+                </Form.Item>
+                <Form.Item label="Дата изменения" name="dateChanged">
+                  <DatePicker disabled />
+                </Form.Item>
+              </div>
 
-            <Row className="ticket-form__row">
-              <Form.Item label="Автор изменений" name="authorFio">
-                <Input placeholder="ФИО автора последней редакции" disabled />
-              </Form.Item>
-              <Form.Item label="Контакт" name="contactFullName">
-                <Input placeholder="ФИО заявителя" disabled />
-              </Form.Item>
-            </Row>
+              <div className={styles.ticketPage__row}>
+                <Form.Item label="Контактное лицо" name="contactFullName">
+                  <Input disabled />
+                </Form.Item>
+                <Form.Item label="Телефон" name={['contacts', 'phone']}>
+                  <Input disabled />
+                </Form.Item>
+              </div>
 
-            <Row className="ticket-form__row">
-              <Form.Item label="Телефон" name={['contacts', 'phone']}>
-                <Input disabled />
+              <Form.Item label="Описание" name="description">
+                <TextArea rows={4} disabled style={{ resize: 'none' }} />
               </Form.Item>
-              <Form.Item label="Электронная почта" name={['contacts', 'email']}>
-                <Input disabled />
-              </Form.Item>
-            </Row>
 
-            <Row className="ticket-form__row">
-              <Form.Item label="Контрагент" name={['contacts', 'enterpriseName']}>
-                <Input placeholder="Организация заявителя" disabled />
-              </Form.Item>
-              <Form.Item label="Ответственный" name={['performer', 'id']}>
-                <Select placeholder="Выберите ответственного" disabled />
-              </Form.Item>
-            </Row>
+              <div className={styles.ticketPage__footer}>
+                <Form.Item label="Файлы" name="attachments">
+                  <Upload disabled />
+                </Form.Item>
 
-            <Row className="ticket-form__row">
-              <Form.Item label="Текст обращения" name="description">
-                <TextArea rows={3} disabled />
-              </Form.Item>
-              <Form.Item label="Решение" name="solution">
-                <TextArea rows={3} disabled />
-              </Form.Item>
-            </Row>
+                <div className={styles.ticketPage__actions}>
+                  <Button className={styles.ticketPage__historyButton}>История заявки</Button>
+                  <Button type="primary">Сохранить</Button>
+                </div>
+              </div>
+            </Form>
           </div>
 
-          <Row className="ticket-form__footer">
-            <Form.Item label="Файлы заявки:" name="attachments" valuePropName="fileList">
-              <Upload className="ticket-form__upload" showUploadList={{ showRemoveIcon: false }} />
-            </Form.Item>
-
-            <Button className="ticket-form__history-button" shape="round" disabled>
-              История заявки
-            </Button>
-
-            <Button type="primary" shape="round" htmlType="submit" disabled>
-              Сохранить
-            </Button>
-          </Row>
-        </Form>
-
-        {/* Комментарии заявки (визуальная заглушка) */}
-        <div className="ticket-comments">{/* TicketComments здесь могут быть добавлены отдельно, если нужно */}</div>
+          <div className={styles.ticketPage__chat}>
+            <div className={styles.ticketPage__chatHeader}>
+              <h3>Обсуждение</h3>
+            </div>
+            <div className={styles.ticketPage__chatContent}>{/* Chat messages will go here */}</div>
+            <div className={styles.ticketPage__chatInput}>
+              <TextArea rows={2} placeholder="Введите сообщение..." />
+              <Button type="primary">Отправить</Button>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <Modal title="История заявки" open={false} onCancel={() => {}} footer={null} width="100%">
-        {/* TicketHistory здесь может быть добавлен отдельно */}
-      </Modal>
     </SupportLayout>
   )
 }
