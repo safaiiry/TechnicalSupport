@@ -95,7 +95,7 @@ export const TicketPage = () => {
               </div>
 
               <Form.Item label="Описание" name="description">
-                <TextArea rows={4} disabled style={{ resize: 'none' }} />
+                <TextArea rows={4} disabled style={{ resize: 'none' }} maxLength={2048} />
               </Form.Item>
 
               <div className={styles.ticketPage__footer}>

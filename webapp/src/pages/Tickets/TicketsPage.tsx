@@ -1,13 +1,16 @@
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, Table } from 'antd'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import SupportLayout from '../../components/Layout/Layout'
 import { getViewTicketRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
+import { RequestForm } from './RequestForm/RequestForm'
 import styles from './TicketsPage.module.less'
 
 export const TicketsPage = () => {
   const navigate = useNavigate()
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const { data, error, isLoading, isFetching, isError } = trpc.getTickets.useQuery()
 
   const columns = [
@@ -103,7 +106,12 @@ export const TicketsPage = () => {
     <SupportLayout>
       <div className={styles.ticketsPage}>
         <div className={styles.ticketsPage__header}>
-          <Button type="primary" className={styles.ticketsPage__createButton} icon={<PlusOutlined />}>
+          <Button
+            type="primary"
+            className={styles.ticketsPage__createButton}
+            icon={<PlusOutlined />}
+            onClick={() => setIsModalOpen(true)}
+          >
             Создать Заявку
           </Button>
         </div>
@@ -122,6 +130,7 @@ export const TicketsPage = () => {
             }}
           />
         </div>
+        <RequestForm open={isModalOpen} onClose={() => setIsModalOpen(false)} />
       </div>
     </SupportLayout>
   )

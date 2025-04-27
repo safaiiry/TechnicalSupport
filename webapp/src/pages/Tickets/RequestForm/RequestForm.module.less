@@ -1,0 +1,44 @@
+@import '../../../styles/variables.less';
+
+.modal {
+  :global(.ant-modal-content) {
+    padding: @spacing-lg @spacing-xl;
+  }
+
+  :global(.ant-modal-header) {
+    margin-bottom: @spacing-lg;
+    padding: 0;
+  }
+
+  :global(.ant-modal-title) {
+    font-size: 20px;
+    font-weight: 600;
+    color: @text-color;
+  }
+
+  :global(.ant-modal-close) {
+    top: @spacing-lg;
+    right: @spacing-xl;
+  }
+}
+
+.form {
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: @spacing-lg;
+  }
+}
+
+.upload {
+  :global(.ant-upload-list) {
+    margin-top: @spacing-md;
+  }
+}
+
+.footer {
+  margin-top: @spacing-xl;
+  display: flex;
+  justify-content: flex-end;
+  gap: @spacing-md;
+}

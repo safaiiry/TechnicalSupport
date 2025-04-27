@@ -1,25 +1,93 @@
-.layoutContainer {
-    min-height: 100vh;
-    background-color:  #fffaf5;
-  }
-  
-  .layoutHeader {
+@import '../../styles/variables.less';
+
+.layout {
+  min-height: 100vh;
+  background: @background-color;
+
+  &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(145deg, #ff6f00 0%, #ff8f1f 40%, #ff9e40 70%, #c43e00 100%);
+    background: linear-gradient(to right, #ff6f00, #ff9e40);
+    padding: 0 @spacing-xxl;
+    height: 56px;
     color: white;
-    padding: 0 1.5rem;
-    font-size: 1.25rem;
+    box-shadow: 0 2px 8px rgba(183, 28, 28, 0.2);
+    position: relative;
+    z-index: 10;
   }
-  
-  .layoutTitle {
-    font-weight: bold;
+
+  &__title {
+    font-size: 18px;
+    font-weight: 500;
+    color: white;
+    letter-spacing: 0.3px;
+    margin-right: @spacing-xxl;
   }
-  
-  .layoutContent {
-    padding: 2rem;
-    background-color: white;
-    border-radius: 8px;
-    margin: 1rem;
+
+  &__nav {
+    display: flex;
+    gap: 1px;
+    height: 100%;
   }
+
+  &__navItem {
+    color: rgba(255, 255, 255, 0.9);
+    padding: 0 @spacing-xl;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    position: relative;
+
+    &:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    &_active {
+      color: white;
+      background: rgba(255, 255, 255, 0.15);
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: white;
+      }
+    }
+  }
+
+  &__user {
+    font-size: @font-size-lg;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.9);
+    margin-left: @spacing-xl;
+
+    &:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  &__content {
+    padding: @spacing-xl @spacing-xxl;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    background: transparent;
+  }
+}
