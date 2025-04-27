@@ -1,0 +1,21 @@
+{
+  "extends": ["stylelint-config-standard", "stylelint-config-recommended-less"],
+  "customSyntax": "postcss-less",
+  "rules": {
+    "at-rule-no-unknown": null,
+    "import-notation": null,
+    "declaration-property-value-no-unknown": null,
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": ["global"]
+      }
+    ],
+    "color-function-notation": "legacy",
+    "alpha-value-notation": "number",
+    "color-function-alias-notation": null,
+    "selector-class-pattern": null,
+    "selector-pseudo-element-colon-notation": "single",
+    "rule-empty-line-before": null
+  }
+}
