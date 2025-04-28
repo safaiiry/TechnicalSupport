@@ -1,6 +1,4 @@
-import { initTRPC } from '@trpc/server'
 import _ from 'lodash'
-import { z } from 'zod'
 
 const typeNames = ['Инцидент', 'Запрос']
 const priorities = ['Высокий', 'Средний', 'Низкий']
@@ -27,7 +25,7 @@ function getRandomDate(base: string, offset = 0) {
   return date.toISOString().slice(0, 10)
 }
 
-const tickets = _.times(100, (i) => {
+export const tickets = _.times(100, (i) => {
   const createdOffset = _.random(-10, 0)
   const changedOffset = createdOffset + _.random(0, 3)
 
@@ -44,17 +42,3 @@ const tickets = _.times(100, (i) => {
     performerFIO: _.sample(performers),
   }
 })
-
-const trpc = initTRPC.create()
-
-export const trpcRouter = trpc.router({
-  getTickets: trpc.procedure.query(() => {
-    return { tickets }
-  }),
-  getTicket: trpc.procedure.input(z.object({ ticketId: z.string() })).query(({ input }) => {
-    const ticket = tickets.find((t) => t.id.toString() === input.ticketId)
-    return { ticket: ticket || null }
-  }),
-})
-
-export type TrpcRouter = typeof trpcRouter
