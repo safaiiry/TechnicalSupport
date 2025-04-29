@@ -1,8 +1,8 @@
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { Button, Form, Input, DatePicker, Select, Spin, Upload } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
-import dayjs from 'dayjs'
-import { useEffect } from 'react'
+// import dayjs from 'dayjs'
+// import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import SupportLayout from '../../components/Layout/Layout'
 import { trpc } from '../../lib/trpc'
@@ -15,25 +15,6 @@ export const TicketPage = () => {
   const { data, isLoading, isError, error } = trpc.getTicket.useQuery({
     ticketId: ticketId ?? '',
   })
-
-  useEffect(() => {
-    if (data?.ticket) {
-      form.setFieldsValue({
-        type: { id: data.ticket.typeName },
-        priority: { id: data.ticket.priority },
-        state: { id: data.ticket.stateName },
-        dateCreated: dayjs(data.ticket.dateCreated),
-        dateChanged: dayjs(data.ticket.dateChanged),
-        authorFio: data.ticket.performerFIO,
-        contactFullName: data.ticket.contacts?.split(',')[0],
-        contacts: {
-          phone: data.ticket.contacts?.split(',')[1]?.trim() || '',
-        },
-        performer: { id: data.ticket.performerFIO },
-        description: data.ticket.description,
-      })
-    }
-  }, [data, form])
 
   if (isLoading) {
     return <Spin />
@@ -52,7 +33,7 @@ export const TicketPage = () => {
           <Link to="/" className={styles.ticketPage__backButton}>
             <ArrowLeftOutlined />
           </Link>
-          <h2>Заявка №{data.ticket.incNumber}</h2>
+          <h2>Заявка №1</h2>
         </div>
 
         <div className={styles.ticketPage__content}>
