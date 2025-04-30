@@ -20,13 +20,13 @@ export const SupportLayout: React.FC<ISupportLayout> = ({ children }) => {
         <GornyEmblem />
         <div className={styles.layout__nav}>
           <Link
-            to="/new-ticket"
+            to="/"
             className={`${styles.layout__navItem} ${location.pathname === '/new-ticket' ? styles.layout__navItem_active : ''}`}
           >
             Обратиться за помощью
           </Link>
           <Link
-            to="/"
+            to="/my-tickets"
             className={`${styles.layout__navItem} ${location.pathname === '/' ? styles.layout__navItem_active : ''}`}
           >
             Мои обращения

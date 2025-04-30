@@ -4,6 +4,7 @@ import { TrpcProvider } from './lib/trpc'
 import 'antd/dist/reset.css'
 import './styles/global.less'
 
+import { MainPage } from './pages/Main/MainPage'
 import { TicketPage } from './pages/Ticket/TicketPage'
 import { TicketsPage } from './pages/Tickets/TicketsPage'
 
@@ -12,7 +13,8 @@ export const App = () => {
     <TrpcProvider>
       <BrowserRouter>
         <Routes>
-          <Route path={getAllTicketsRoute()} element={<TicketsPage />} />
+          <Route path={getAllTicketsRoute()} element={<MainPage />} />
+          <Route path="/my-tickets" element={<TicketsPage />} />
           <Route path={getViewTicketRoute(viewTicketRouteParams)} element={<TicketPage />} />
         </Routes>
       </BrowserRouter>

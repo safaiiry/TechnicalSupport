@@ -34,5 +34,8 @@
   },
   "overrides": {
     "eslint": "9.25.0"
+  },
+  "dependencies": {
+    "rollup": "3.29.4"
   }
 }
