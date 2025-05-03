@@ -89,6 +89,7 @@ model TicketField {
   field_type  FieldType
   is_required Boolean
   options     Json?
+  placeholder String?       @db.VarChar
   field_order Int           @db.Integer
 
   category    TicketCategory @relation(fields: [category_id], references: [id])
