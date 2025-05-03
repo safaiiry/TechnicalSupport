@@ -65,7 +65,7 @@ export const RequestModal: React.FC<RequestModalProps> = ({ open, category, onCl
   const renderField = (field: (typeof fields)[number]) => {
     switch (field.field_type) {
       case 'input':
-        return <Input placeholder={field.placeholder} />
+        return <Input placeholder={field.placeholder ?? undefined} />
 
       case 'select':
         // eslint-disable-next-line no-case-declarations
@@ -81,7 +81,7 @@ export const RequestModal: React.FC<RequestModalProps> = ({ open, category, onCl
         )
 
       case 'date':
-        return <DatePicker placeholder={field.placeholder} style={{ width: '100%' }} />
+        return <DatePicker placeholder={field.placeholder ?? undefined} style={{ width: '100%' }} />
 
       default:
         return null
