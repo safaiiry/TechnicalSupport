@@ -17,17 +17,17 @@ export const SupportLayout: React.FC<ISupportLayout> = ({ children }) => {
   return (
     <AntLayout className={styles.layout}>
       <Header className={styles.layout__header}>
-        <GornyEmblem />
+        <GornyEmblem style={{ marginTop: '6px' }} />
         <div className={styles.layout__nav}>
           <Link
             to="/"
-            className={`${styles.layout__navItem} ${location.pathname === '/new-ticket' ? styles.layout__navItem_active : ''}`}
+            className={`${styles.layout__navItem} ${location.pathname === '/' ? styles.layout__navItem_active : ''}`}
           >
             Обратиться за помощью
           </Link>
           <Link
             to="/my-tickets"
-            className={`${styles.layout__navItem} ${location.pathname === '/' ? styles.layout__navItem_active : ''}`}
+            className={`${styles.layout__navItem} ${location.pathname === '/my-tickets' ? styles.layout__navItem_active : ''}`}
           >
             Мои обращения
           </Link>

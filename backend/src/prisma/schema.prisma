@@ -34,7 +34,7 @@ model Operator {
 
 model OperatorRole {
   id          String     @id @default(uuid()) @db.Uuid
-  name        String     @db.VarChar
+  name        String     @unique @db.VarChar
   description String     @db.Text
 
   operators   Operator[]
