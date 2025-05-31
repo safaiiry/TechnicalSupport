@@ -71,7 +71,7 @@ export const RequestModal: React.FC<RequestModalProps> = ({ open, category, onCl
         // eslint-disable-next-line no-case-declarations
         const options = (field.options ?? []) as string[]
         return (
-          <Select placeholder={field.placeholder} style={{ height: 48, width: '100%' }}>
+          <Select placeholder={field.placeholder} style={{ height: 48, width: '100%' }} allowClear>
             {options.map((option) => (
               <Select.Option key={option} value={option}>
                 {option}

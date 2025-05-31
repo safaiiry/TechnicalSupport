@@ -1,7 +1,7 @@
-import { UserOutlined } from '@ant-design/icons'
-import { Layout as AntLayout } from 'antd'
+import { UserOutlined, LogoutOutlined } from '@ant-design/icons'
+import { Layout as AntLayout, Tooltip } from 'antd'
 import React, { ReactNode } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import GornyEmblem from '../../assets/GornyEmblem.svg?react'
 import styles from './Layout.module.less'
 
@@ -13,6 +13,12 @@ type ISupportLayout = {
 
 export const SupportLayout: React.FC<ISupportLayout> = ({ children }) => {
   const location = useLocation()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    navigate('/login')
+  }
 
   return (
     <AntLayout className={styles.layout}>
@@ -38,8 +44,15 @@ export const SupportLayout: React.FC<ISupportLayout> = ({ children }) => {
             FAQ
           </Link>
         </div>
-        <div className={styles.layout__user}>
-          <UserOutlined />
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div className={styles.layout__user}>
+            <UserOutlined />
+          </div>
+          <div className={styles.layout__user} onClick={handleLogout}>
+            <Tooltip title="Выйти">
+              <LogoutOutlined />
+            </Tooltip>
+          </div>
         </div>
       </Header>
       <Content className={styles.layout__content}>{children}</Content>

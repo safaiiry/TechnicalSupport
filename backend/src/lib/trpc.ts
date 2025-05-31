@@ -3,18 +3,21 @@ import * as trpcExpress from '@trpc/server/adapters/express'
 import { type Express } from 'express'
 import SuperJSON from 'superjson'
 import { type TrpcRouter } from '../router'
-import { type AppContext } from './ctx'
+import { createContext } from './ctx'
 
-export const trpc = initTRPC.context<AppContext>().create({
+export const trpc = initTRPC.context<typeof createContext>().create({
   transformer: SuperJSON,
 })
 
-export const applyTrpcToExpressApp = (expressApp: Express, appContext: AppContext, trpcRouter: TrpcRouter) => {
+export const router = trpc.router
+export const publicProcedure = trpc.procedure
+
+export const applyTrpcToExpressApp = (expressApp: Express, trpcRouter: TrpcRouter) => {
   expressApp.use(
     '/trpc',
     trpcExpress.createExpressMiddleware({
       router: trpcRouter,
-      createContext: () => appContext,
+      createContext,
     })
   )
 }

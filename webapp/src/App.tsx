@@ -8,6 +8,7 @@ import { LoginPage } from './pages/Login/LoginPage'
 import { MainPage } from './pages/Main/MainPage'
 import { TicketPage } from './pages/Ticket/TicketPage'
 import { TicketsPage } from './pages/Tickets/TicketsPage'
+import { PrivateRoute } from './components/PrivateRoute/PrivateRoute'
 
 export const App = () => {
   return (
@@ -15,9 +16,30 @@ export const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path={getAllTicketsRoute()} element={<MainPage />} />
-          <Route path="/my-tickets" element={<TicketsPage />} />
-          <Route path={getViewTicketRoute(viewTicketRouteParams)} element={<TicketPage />} />
+          <Route
+            path={getAllTicketsRoute()}
+            element={
+              <PrivateRoute>
+                <MainPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/my-tickets"
+            element={
+              <PrivateRoute>
+                <TicketsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path={getViewTicketRoute(viewTicketRouteParams)}
+            element={
+              <PrivateRoute>
+                <TicketPage />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </TrpcProvider>
