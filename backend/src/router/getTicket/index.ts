@@ -8,6 +8,23 @@ export const getTicketTrpcRoute = trpc.procedure
       where: {
         id: input.ticketId,
       },
+      include: {
+        field_values: {
+          include: {
+            field: true,
+          },
+        },
+        category: true,
+        status: true,
+        user: true,
+        assigned_operator: {
+          include: {
+            user: true,
+          },
+        },
+        attachments: true,
+      },
     })
+
     return { ticket }
   })

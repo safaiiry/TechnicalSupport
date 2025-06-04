@@ -1,8 +1,7 @@
 import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button, Form, Input, DatePicker, Select, Spin, Upload } from 'antd'
+import { Button, Col, DatePicker, Form, Input, Row, Select, Spin, Upload } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
-// import dayjs from 'dayjs'
-// import { useEffect } from 'react'
+import dayjs from 'dayjs'
 import { Link, useParams } from 'react-router-dom'
 import SupportLayout from '../../components/Layout/Layout'
 import { trpc } from '../../lib/trpc'
@@ -17,13 +16,51 @@ export const TicketPage = () => {
   })
 
   if (isLoading) {
-    return <Spin />
+    return (
+      <SupportLayout>
+        <Spin size="large" />
+      </SupportLayout>
+    )
   }
+
   if (isError) {
     return <div>Ошибка: {error.message}</div>
   }
+
   if (!data.ticket) {
     return <div>Заявка не найдена</div>
+  }
+
+  const ticket = data.ticket
+
+  function layoutByCustomPattern(fields: typeof ticket.field_values) {
+    const total = fields.length
+
+    const layouts: Record<number, number[]> = {
+      8: [3, 2, 2, 1],
+      9: [3, 2, 2, 2],
+      10: [3, 1, 2, 2, 1, 1],
+      11: [2, 1, 3, 3, 1, 1],
+      13: [3, 3, 2, 1, 1, 1, 1, 1],
+      14: [3, 2, 3, 3, 2, 1],
+      15: [3, 2, 3, 3, 1, 1, 1, 1],
+      16: [3, 2, 3, 3, 2, 1, 1, 1],
+    }
+
+    const pattern = layouts[total] ?? Array(Math.ceil(total / 3)).fill(3)
+    const result: { fields: typeof ticket.field_values; span: number }[] = []
+
+    let i = 0
+    for (const count of pattern) {
+      const group = ticket.field_values.slice(i, i + count)
+      if (group.length === 0) {
+        break
+      }
+      result.push({ fields: group, span: Math.floor(24 / count) })
+      i += count
+    }
+
+    return result
   }
 
   return (
@@ -33,60 +70,62 @@ export const TicketPage = () => {
           <Link to="/" className={styles.ticketPage__backButton}>
             <ArrowLeftOutlined />
           </Link>
-          <h2>Заявка №1</h2>
+          <h2>Заявка №{ticket.id.slice(0, 8).toUpperCase()}</h2>
         </div>
 
         <div className={styles.ticketPage__content}>
           <div className={styles.ticketPage__form}>
             <Form form={form} layout="vertical">
-              <div className={styles.ticketPage__row}>
-                <Form.Item label="Тип обращения" name={['type', 'id']}>
-                  <Select disabled />
-                </Form.Item>
-                <Form.Item label="Приоритет" name={['priority', 'id']}>
-                  <Select disabled />
-                </Form.Item>
-              </div>
+              {layoutByCustomPattern(ticket.field_values).map((group, idx) => (
+                <Row gutter={16} key={idx}>
+                  {group.fields.map((fv) => {
+                    const field = fv.field
+                    const value = fv.value
 
-              <div className={styles.ticketPage__row}>
-                <Form.Item label="Статус" name={['state', 'id']}>
-                  <Select disabled />
-                </Form.Item>
-                <Form.Item label="Ответственный" name={['performer', 'id']}>
-                  <Select disabled />
-                </Form.Item>
-              </div>
-
-              <div className={styles.ticketPage__row}>
-                <Form.Item label="Дата регистрации" name="dateCreated">
-                  <DatePicker disabled />
-                </Form.Item>
-                <Form.Item label="Дата изменения" name="dateChanged">
-                  <DatePicker disabled />
-                </Form.Item>
-              </div>
-
-              <div className={styles.ticketPage__row}>
-                <Form.Item label="Контактное лицо" name="contactFullName">
-                  <Input disabled />
-                </Form.Item>
-                <Form.Item label="Телефон" name={['contacts', 'phone']}>
-                  <Input disabled />
-                </Form.Item>
-              </div>
-
-              <Form.Item label="Описание" name="description">
-                <TextArea rows={4} disabled style={{ resize: 'none' }} maxLength={2048} />
-              </Form.Item>
-
+                    return (
+                      <Col key={field.id} span={group.span}>
+                        <Form.Item label={field.field_label} className={styles.formItem}>
+                          {field.field_type === 'input' && <Input value={value} disabled />}
+                          {field.field_type === 'date' && (
+                            <DatePicker value={dayjs(value)} disabled style={{ width: '100%' }} />
+                          )}
+                          {field.field_type === 'select' && (
+                            <Select
+                              value={value}
+                              disabled
+                              className={styles.select}
+                              options={
+                                Array.isArray(field.options)
+                                  ? (field.options as string[])
+                                      .filter((opt): opt is string => typeof opt === 'string')
+                                      .map((opt) => ({ label: opt, value: opt }))
+                                  : []
+                              }
+                            />
+                          )}
+                        </Form.Item>
+                      </Col>
+                    )
+                  })}
+                </Row>
+              ))}
               <div className={styles.ticketPage__footer}>
-                <Form.Item label="Файлы" name="attachments">
-                  <Upload disabled />
+                <Form.Item label="Файлы">
+                  <Upload
+                    fileList={ticket.attachments.map((file: any) => ({
+                      uid: file.id,
+                      name: file.file_name,
+                      url: file.file_url,
+                    }))}
+                    showUploadList={{ showDownloadIcon: true }}
+                  />
                 </Form.Item>
 
                 <div className={styles.ticketPage__actions}>
                   <Button className={styles.ticketPage__historyButton}>История заявки</Button>
-                  <Button type="primary">Сохранить</Button>
+                  <Button type="primary" disabled>
+                    Сохранить
+                  </Button>
                 </div>
               </div>
             </Form>
@@ -96,7 +135,7 @@ export const TicketPage = () => {
             <div className={styles.ticketPage__chatHeader}>
               <h3>Обсуждение</h3>
             </div>
-            <div className={styles.ticketPage__chatContent}>{/* Chat messages will go here */}</div>
+            <div className={styles.ticketPage__chatContent}>{/* Chat content */}</div>
             <div className={styles.ticketPage__chatInput}>
               <TextArea rows={2} placeholder="Введите сообщение..." />
               <Button type="primary">Отправить</Button>

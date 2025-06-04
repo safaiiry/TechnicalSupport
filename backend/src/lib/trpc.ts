@@ -21,3 +21,10 @@ export const applyTrpcToExpressApp = (expressApp: Express, trpcRouter: TrpcRoute
     })
   )
 }
+
+export const protectedProcedure = trpc.procedure.use(async ({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new Error('UNAUTHORIZED')
+  }
+  return next()
+})

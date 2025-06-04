@@ -1,6 +1,10 @@
 @import '../../styles/variables.less';
 
 .ticketPage {
+  max-width: 2000px;
+  margin: 0 auto;
+  overflow: auto;
+
   &__header {
     display: flex;
     align-items: center;
@@ -14,6 +18,19 @@
       font-size: 24px;
     }
   }
+  
+  .formItem {
+    .input,
+    .select,
+    .button {
+      height: 48px;
+    }
+  
+    .button {
+      width: 200px;
+    }
+  }
+  
 
   &__backButton {
     color: @text-light;
@@ -37,7 +54,7 @@
 
   &__content {
     display: grid;
-    grid-template-columns: 1fr 500px;
+    grid-template-columns: 1fr 600px;
     gap: @spacing-xl;
   }
 

@@ -1,44 +1,40 @@
 import { z } from 'zod'
-import { STATUS_NEW } from '../../lib/constants'
-import { trpc } from '../../lib/trpc'
+import { protectedProcedure, router } from '../../lib/trpc'
 
-export const createTicketTrpcRoute = trpc.procedure
-  .input(
-    z.object({
-      userId: z.string().uuid(),
-      categoryId: z.string().uuid(),
-      fieldValues: z.array(
-        z.object({
-          fieldId: z.string().uuid(),
-          value: z.string(),
-        })
-      ),
-    })
-  )
-  .mutation(async ({ ctx, input }) => {
-    const defaultStatus = await ctx.prisma.ticketStatus.findFirst({
-      where: { id: STATUS_NEW },
-    })
+export const createTicketTrpcRoute = router({
+  create: protectedProcedure
+    .input(
+      z.object({
+        categoryId: z.string().uuid(),
+        fields: z.array(
+          z.object({
+            fieldId: z.string().uuid(),
+            value: z.string(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user!.id
 
-    if (!defaultStatus) {
-      throw new Error('Default status not found')
-    }
+      const NEW_STATUS_ID = 'f29f93af-51ca-4791-b345-e0beecd46b43'
 
-    const ticket = await ctx.prisma.ticket.create({
-      data: {
-        user_id: input.userId,
-        category_id: input.categoryId,
-        status_id: defaultStatus.id,
-        field_values: {
-          createMany: {
-            data: input.fieldValues.map((fv) => ({
-              field_id: fv.fieldId,
-              value: fv.value,
-            })),
-          },
+      const ticket = await ctx.prisma.ticket.create({
+        data: {
+          user_id: userId,
+          category_id: input.categoryId,
+          status_id: NEW_STATUS_ID,
         },
-      },
-    })
+      })
 
-    return { ticketId: ticket.id }
-  })
+      await ctx.prisma.ticketFieldValue.createMany({
+        data: input.fields.map((f) => ({
+          ticket_id: ticket.id,
+          field_id: f.fieldId,
+          value: f.value,
+        })),
+      })
+
+      return { ticketId: ticket.id }
+    }),
+})

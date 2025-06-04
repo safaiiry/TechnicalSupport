@@ -1,6 +1,8 @@
 import type { TicketCategory, TicketField } from '@technicalsupport/backend/src/lib/types'
 import { Modal, Spin, Input, Select, DatePicker, Form, Button, Row, Col } from 'antd'
+import { message } from 'antd'
 import { useForm } from 'antd/es/form/Form'
+import dayjs from 'dayjs'
 import React from 'react'
 import { trpc } from '../../lib/trpc'
 // import styles from './RequestModal.module.less'
@@ -20,6 +22,8 @@ export const RequestModal: React.FC<RequestModalProps> = ({ open, category, onCl
   )
 
   const fields = data?.fields ?? []
+
+  const createTicket = trpc.createTicket.create.useMutation()
 
   type GroupedField = {
     fields: typeof fields
@@ -91,10 +95,22 @@ export const RequestModal: React.FC<RequestModalProps> = ({ open, category, onCl
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields()
-      console.info('Форма отправлена:', values)
-      // TODO: отправка на бэкенд
+
+      const payload = {
+        categoryId: category!.id,
+        fields: Object.entries(values).map(([fieldId, value]) => ({
+          fieldId,
+          value: dayjs.isDayjs(value) ? value.format('YYYY-MM-DD') : String(value),
+        })),
+      }
+
+      await createTicket.mutateAsync(payload)
+      message.success('Заявка успешно отправлена!')
+      onClose()
+      form.resetFields()
     } catch (error) {
-      console.warn('Ошибка валидации:', error)
+      console.warn('Ошибка валидации или отправке:', error)
+      message.error('Не удалось отправить заявку. Попробуйте ещё раз.')
     }
   }
 

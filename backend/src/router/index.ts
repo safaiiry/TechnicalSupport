@@ -4,6 +4,7 @@ import { authTrpcRoute } from './auth'
 import { createTicketTrpcRoute } from './createTicket'
 import { getCategoriesTrpcRoute } from './getCategories'
 import { getCategoryFieldsTrpcRoute } from './getCategoryFields'
+import { getStatusesTrpcRoute } from './getStatuses'
 import { getTicketTrpcRoute } from './getTicket'
 import { getTicketsTrpcRoute } from './getTickets'
 // @endindex
@@ -14,6 +15,7 @@ export const trpcRouter = trpc.router({
   createTicket: createTicketTrpcRoute,
   getCategories: getCategoriesTrpcRoute,
   getCategoryFields: getCategoryFieldsTrpcRoute,
+  getStatuses: getStatusesTrpcRoute,
   getTicket: getTicketTrpcRoute,
   getTickets: getTicketsTrpcRoute,
   // @endindex
