@@ -67,7 +67,7 @@ export const TicketPage = () => {
     <SupportLayout>
       <div className={styles.ticketPage}>
         <div className={styles.ticketPage__header}>
-          <Link to="/" className={styles.ticketPage__backButton}>
+          <Link to="/my-tickets" className={styles.ticketPage__backButton}>
             <ArrowLeftOutlined />
           </Link>
           <h2>Заявка №{ticket.id.slice(0, 8).toUpperCase()}</h2>
@@ -135,7 +135,11 @@ export const TicketPage = () => {
             <div className={styles.ticketPage__chatHeader}>
               <h3>Обсуждение</h3>
             </div>
-            <div className={styles.ticketPage__chatContent}>{/* Chat content */}</div>
+            <div className={styles.ticketPage__chatContent}>
+              <div className={styles.statusInfo}>
+                <b>Статус обращения:</b> {ticket.status.name}
+              </div>
+            </div>
             <div className={styles.ticketPage__chatInput}>
               <TextArea rows={2} placeholder="Введите сообщение..." />
               <Button type="primary">Отправить</Button>

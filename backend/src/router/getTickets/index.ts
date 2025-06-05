@@ -16,8 +16,12 @@ export const getTicketsTrpcRoute = router({
       const userId = ctx.user?.id
       const role = ctx.user?.role
 
-      const filters: Prisma.TicketWhereInput[] = [{ user_id: userId }]
-      if (role !== 'user') {
+      const filters: Prisma.TicketWhereInput[] = []
+      if (role === 'user') {
+        filters.push({ user_id: userId })
+      }
+
+      if (role === 'operator') {
         filters.push({
           assigned_operator: {
             is: {
@@ -27,23 +31,26 @@ export const getTicketsTrpcRoute = router({
         })
       }
 
-      const where: Prisma.TicketWhereInput = {
-        AND: [
-          {
-            OR: filters,
-          },
-          input.category ? { category_id: input.category } : {},
-          input.status ? { status_id: input.status } : {},
-          input.created_at
-            ? {
-                created_at: {
-                  gte: new Date(input.created_at),
-                  lt: new Date(new Date(input.created_at).getTime() + 24 * 60 * 60 * 1000),
-                },
-              }
-            : {},
-        ],
+      const andFilters: Prisma.TicketWhereInput[] = []
+      if (filters.length > 0) {
+        andFilters.push({ OR: filters })
       }
+      if (input.category) {
+        andFilters.push({ category_id: input.category })
+      }
+      if (input.status) {
+        andFilters.push({ status_id: input.status })
+      }
+      if (input.created_at) {
+        andFilters.push({
+          created_at: {
+            gte: new Date(input.created_at),
+            lt: new Date(new Date(input.created_at).getTime() + 24 * 60 * 60 * 1000),
+          },
+        })
+      }
+
+      const where: Prisma.TicketWhereInput = andFilters.length ? { AND: andFilters } : {}
 
       const tickets = await ctx.prisma.ticket.findMany({
         where,
