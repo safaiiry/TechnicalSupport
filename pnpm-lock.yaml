@@ -170,6 +170,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.4.1(vite@6.3.3(@types/node@20.5.0)(less@4.3.0)(tsx@4.19.4))
+      classnames:
+        specifier: ^2.5.1
+        version: 2.5.1
       globals:
         specifier: ^15.15.0
         version: 15.15.0

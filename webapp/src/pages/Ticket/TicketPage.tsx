@@ -1,8 +1,9 @@
 import { ArrowLeftOutlined, EditOutlined, CheckOutlined, CloseOutlined, ArrowRightOutlined } from '@ant-design/icons'
-import { Button, Col, DatePicker, Form, Input, Row, Select, Spin, Upload, Modal } from 'antd'
+import { Button, Col, DatePicker, Form, Input, Row, Select, Spin, Upload, Modal, message } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
+import cn from 'classnames'
 import dayjs from 'dayjs'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import SupportLayout from '../../components/Layout/Layout'
 import { trpc } from '../../lib/trpc'
@@ -23,6 +24,25 @@ export const TicketPage = () => {
 
   const updateStatus = trpc.updateTicket.updateStatus.useMutation()
   const assignOperator = trpc.updateTicket.assignOperator.useMutation()
+
+  const { data: messagesData, refetch: refetchMessages } = trpc.ticketMessages.getMessages.useQuery(
+    { ticketId: ticketId ?? '' },
+    { enabled: !!ticketId }
+  )
+
+  const sendMessageMutation = trpc.ticketMessages.sendMessage.useMutation()
+
+  const [messageText, setMessageText] = useState('')
+
+  useEffect(() => {
+    if (!ticketId) {
+      return
+    }
+    const id = setInterval(() => {
+      refetchMessages()
+    }, 5000)
+    return () => clearInterval(id)
+  }, [ticketId, refetchMessages])
 
   const role = localStorage.getItem('role')
 
@@ -109,6 +129,20 @@ export const TicketPage = () => {
     setAssignModal(false)
     setSelectedOperator(undefined)
     refetch()
+  }
+
+  const handleSendMessage = async () => {
+    if (!messageText.trim()) {
+      return
+    }
+
+    try {
+      await sendMessageMutation.mutateAsync({ ticketId: ticket.id, content: messageText })
+      setMessageText('')
+      refetchMessages()
+    } catch (e) {
+      message.error('Не удалось отправить сообщение')
+    }
   }
 
   return (
@@ -219,10 +253,52 @@ export const TicketPage = () => {
                   )}
                 </div>
               </div>
+              {messagesData?.messages.map((msg) => {
+                const fullName = localStorage.getItem('full_name')
+                const isMine = msg.author === fullName
+                return (
+                  <div
+                    key={msg.id}
+                    className={cn(
+                      styles.ticketPage__message,
+                      isMine ? styles.ticketPage__messageMine : styles.ticketPage__messageOther
+                    )}
+                  >
+                    <div className={styles.ticketPage__messageMeta}>
+                      <div className={styles.ticketPage__messageAuthor}>
+                        <b>{isMine ? 'Вы' : msg.author}</b>
+                        {msg.role !== 'user' && (
+                          <div className={styles.ticketPage__messageRole}>
+                            {msg.role === 'chief'
+                              ? 'Главный оператор технической поддержки'
+                              : 'Оператор технической поддержки'}
+                          </div>
+                        )}
+                      </div>
+                      <div>{new Date(msg.created_at).toLocaleString('ru-RU')}</div>
+                    </div>
+                    <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
+                  </div>
+                )
+              })}
             </div>
             <div className={styles.ticketPage__chatInput}>
-              <TextArea rows={2} placeholder="Введите сообщение..." />
-              <Button type="primary">Отправить</Button>
+              <TextArea
+                rows={2}
+                placeholder="Введите сообщение..."
+                value={messageText}
+                onChange={(e) => setMessageText(e.target.value)}
+                autoSize={{ minRows: 2, maxRows: 5 }}
+                onPressEnter={(e) => {
+                  if (!e.shiftKey) {
+                    e.preventDefault()
+                    handleSendMessage()
+                  }
+                }}
+              />
+              <Button type="primary" onClick={handleSendMessage} loading={sendMessageMutation.isLoading}>
+                Отправить
+              </Button>
             </div>
             <Modal
               open={assignModal}
