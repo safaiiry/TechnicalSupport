@@ -12,6 +12,8 @@ import styles from './TicketPage.module.less'
 export const TicketPage = () => {
   const { ticketId } = useParams<{ ticketId: string }>()
   const [form] = Form.useForm()
+  const role = localStorage.getItem('role')
+  const isChief = role === 'chief'
 
   const { data, isLoading, isError, error, refetch } = trpc.getTicket.useQuery({
     ticketId: ticketId ?? '',
@@ -19,37 +21,48 @@ export const TicketPage = () => {
 
   const { data: statusesData } = trpc.getStatuses.useQuery()
   const { data: operatorsData } = trpc.getOperators.useQuery(undefined, {
-    enabled: localStorage.getItem('role') === 'chief',
+    enabled: isChief,
   })
 
   const updateStatus = trpc.updateTicket.updateStatus.useMutation()
   const assignOperator = trpc.updateTicket.assignOperator.useMutation()
+  const updateFields = trpc.updateTicket.updateFields.useMutation()
+  const sendMessageMutation = trpc.ticketMessages.sendMessage.useMutation()
 
   const { data: messagesData, refetch: refetchMessages } = trpc.ticketMessages.getMessages.useQuery(
     { ticketId: ticketId ?? '' },
     { enabled: !!ticketId }
   )
 
-  const sendMessageMutation = trpc.ticketMessages.sendMessage.useMutation()
-
   const [messageText, setMessageText] = useState('')
+  const [fieldValues, setFieldValues] = useState<Record<string, string>>({})
+  const [pendingChanges, setPendingChanges] = useState<Record<string, string>>({})
+  const [editingStatus, setEditingStatus] = useState(false)
+  const [newStatus, setNewStatus] = useState<string>()
+  const [assignModal, setAssignModal] = useState(false)
+  const [selectedOperator, setSelectedOperator] = useState<string>()
 
   useEffect(() => {
     if (!ticketId) {
       return
     }
-    const id = setInterval(() => {
-      refetchMessages()
-    }, 5000)
+    const id = setInterval(() => refetchMessages(), 5000)
     return () => clearInterval(id)
   }, [ticketId, refetchMessages])
 
-  const role = localStorage.getItem('role')
+  const COMPLETED_STATUS_ID = '95a55ae5-96a4-4f58-bc35-c551935ba4b8'
+  const isCompleted = data?.ticket?.status.id === COMPLETED_STATUS_ID
 
-  const [editingStatus, setEditingStatus] = useState(false)
-  const [newStatus, setNewStatus] = useState<string>()
-  const [assignModal, setAssignModal] = useState(false)
-  const [selectedOperator, setSelectedOperator] = useState<string>()
+  useEffect(() => {
+    if (data?.ticket) {
+      const initial: Record<string, string> = {}
+      data.ticket.field_values.forEach((fv) => {
+        initial[fv.id] = fv.value
+      })
+      setFieldValues(initial)
+      setPendingChanges({})
+    }
+  }, [data])
 
   if (isLoading) {
     return (
@@ -62,8 +75,7 @@ export const TicketPage = () => {
   if (isError) {
     return <div>Ошибка: {error.message}</div>
   }
-
-  if (!data.ticket) {
+  if (!data?.ticket) {
     return <div>Заявка не найдена</div>
   }
 
@@ -79,7 +91,6 @@ export const TicketPage = () => {
 
   function layoutByCustomPattern(fields: typeof ticket.field_values) {
     const total = fields.length
-
     const layouts: Record<number, number[]> = {
       8: [3, 2, 2, 1],
       9: [3, 2, 2, 2],
@@ -90,7 +101,6 @@ export const TicketPage = () => {
       15: [3, 2, 3, 3, 1, 1, 1, 1],
       16: [3, 2, 3, 3, 2, 1, 1, 1],
     }
-
     const pattern = layouts[total] ?? Array(Math.ceil(total / 3)).fill(3)
     const result: { fields: typeof ticket.field_values; span: number }[] = []
 
@@ -110,6 +120,31 @@ export const TicketPage = () => {
   const startEdit = () => {
     setNewStatus(ticket.status.id)
     setEditingStatus(true)
+  }
+
+  const handleFieldChange = (fieldValueId: string, value: string) => {
+    setFieldValues((prev) => ({ ...prev, [fieldValueId]: value }))
+    setPendingChanges((prev) => ({ ...prev, [fieldValueId]: value }))
+  }
+
+  const handleSaveFields = async () => {
+    const updates = Object.entries(pendingChanges).map(([fieldValueId, value]) => ({
+      fieldValueId,
+      value,
+    }))
+
+    if (updates.length === 0) {
+      return
+    }
+
+    try {
+      await updateFields.mutateAsync({ ticketId: ticket.id, fields: updates })
+      setPendingChanges({})
+      refetch()
+      refetchMessages()
+    } catch {
+      message.error('Не удалось обновить поле')
+    }
   }
 
   const handleStatusSave = async () => {
@@ -135,12 +170,11 @@ export const TicketPage = () => {
     if (!messageText.trim()) {
       return
     }
-
     try {
       await sendMessageMutation.mutateAsync({ ticketId: ticket.id, content: messageText })
       setMessageText('')
       refetchMessages()
-    } catch (e) {
+    } catch {
       message.error('Не удалось отправить сообщение')
     }
   }
@@ -162,20 +196,33 @@ export const TicketPage = () => {
                 <Row gutter={16} key={idx}>
                   {group.fields.map((fv) => {
                     const field = fv.field
-                    const value = fv.value
+                    const editable = role === 'user' && !isCompleted
+                    const value = fieldValues[fv.id]
 
                     return (
                       <Col key={field.id} span={group.span}>
                         <Form.Item label={field.field_label} className={styles.formItem}>
-                          {field.field_type === 'input' && <Input value={value} disabled />}
+                          {field.field_type === 'input' && (
+                            <Input
+                              value={value}
+                              disabled={!editable}
+                              onChange={(e) => handleFieldChange(fv.id, e.target.value)}
+                            />
+                          )}
                           {field.field_type === 'date' && (
-                            <DatePicker value={dayjs(value)} disabled style={{ width: '100%' }} />
+                            <DatePicker
+                              value={value ? dayjs(value) : undefined}
+                              disabled={!editable}
+                              style={{ width: '100%' }}
+                              onChange={(d) => d && handleFieldChange(fv.id, d.format('YYYY-MM-DD'))}
+                            />
                           )}
                           {field.field_type === 'select' && (
                             <Select
                               value={value}
-                              disabled
+                              disabled={!editable}
                               className={styles.select}
+                              onChange={(v) => handleFieldChange(fv.id, v)}
                               options={
                                 Array.isArray(field.options)
                                   ? (field.options as string[])
@@ -202,10 +249,12 @@ export const TicketPage = () => {
                     showUploadList={{ showDownloadIcon: true }}
                   />
                 </Form.Item>
-
                 <div className={styles.ticketPage__actions}>
-                  <Button className={styles.ticketPage__historyButton}>История заявки</Button>
-                  <Button type="primary" disabled>
+                  <Button
+                    type="primary"
+                    onClick={handleSaveFields}
+                    disabled={isCompleted || Object.keys(pendingChanges).length === 0}
+                  >
                     Сохранить
                   </Button>
                 </div>
@@ -226,14 +275,24 @@ export const TicketPage = () => {
                       value={newStatus}
                       onChange={(v) => setNewStatus(v)}
                       style={{ width: 200 }}
-                      options={statusesData?.statuses.map((s) => ({ value: s.id, label: s.name }))}
+                      options={statusesData?.statuses.map((s) => ({
+                        value: s.id,
+                        label: s.name,
+                      }))}
                     />
                   ) : (
                     <span>{ticket.status.name}</span>
                   )}
+                  {isCompleted && (
+                    <div className={styles.completedText}>
+                      {' '}
+                      Обращение завершено {new Date(ticket.updated_at).toLocaleDateString('ru-RU')}
+                    </div>
+                  )}
                 </div>
                 <div className={styles.icons}>
                   {(role === 'operator' || role === 'chief') &&
+                    !isCompleted &&
                     (editingStatus ? (
                       <>
                         <CheckOutlined onClick={handleStatusSave} className={styles.actionIcon} />
@@ -248,7 +307,7 @@ export const TicketPage = () => {
                     ) : (
                       <EditOutlined onClick={startEdit} className={styles.actionIcon} />
                     ))}
-                  {role === 'chief' && !editingStatus && (
+                  {role === 'chief' && !editingStatus && !isCompleted && (
                     <ArrowRightOutlined onClick={() => setAssignModal(true)} className={styles.actionIcon} />
                   )}
                 </div>
@@ -295,8 +354,14 @@ export const TicketPage = () => {
                     handleSendMessage()
                   }
                 }}
+                disabled={isCompleted}
               />
-              <Button type="primary" onClick={handleSendMessage} loading={sendMessageMutation.isLoading}>
+              <Button
+                type="primary"
+                onClick={handleSendMessage}
+                loading={sendMessageMutation.isLoading}
+                disabled={isCompleted}
+              >
                 Отправить
               </Button>
             </div>
@@ -311,7 +376,10 @@ export const TicketPage = () => {
                 placeholder="Оператор"
                 value={selectedOperator}
                 onChange={(v) => setSelectedOperator(v)}
-                options={operatorsData?.operators.map((o) => ({ value: o.id, label: o.full_name }))}
+                options={operatorsData?.operators.map((o) => ({
+                  value: o.id,
+                  label: o.full_name,
+                }))}
               />
             </Modal>
           </div>
