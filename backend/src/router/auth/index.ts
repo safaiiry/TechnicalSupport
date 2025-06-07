@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { publicProcedure, router } from '../../lib/trpc'
 import type { UserRole } from '../../types/roles'
 
-const OPERATOR_ROLE_ID = '7f0f6124-8042-4588-b3bb-17d7deb089cb'
+const OPERATOR_ROLE_ID = '7f0f6124-8042-4588-b38b-17d7deb08988'
 const CHIEF_ROLE_ID = '80669848-ca19-4d31-ab38-f9efdb0753a8'
 
 export const authTrpcRoute = router({

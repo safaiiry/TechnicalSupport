@@ -4,9 +4,11 @@ import { authTrpcRoute } from './auth'
 import { createTicketTrpcRoute } from './createTicket'
 import { getCategoriesTrpcRoute } from './getCategories'
 import { getCategoryFieldsTrpcRoute } from './getCategoryFields'
+import { getOperatorsTrpcRoute } from './getOperators'
 import { getStatusesTrpcRoute } from './getStatuses'
 import { getTicketTrpcRoute } from './getTicket'
 import { getTicketsTrpcRoute } from './getTickets'
+import { updateTicketTrpcRoute } from './updateTicket'
 // @endindex
 
 export const trpcRouter = trpc.router({
@@ -15,9 +17,11 @@ export const trpcRouter = trpc.router({
   createTicket: createTicketTrpcRoute,
   getCategories: getCategoriesTrpcRoute,
   getCategoryFields: getCategoryFieldsTrpcRoute,
+  getOperators: getOperatorsTrpcRoute,
   getStatuses: getStatusesTrpcRoute,
   getTicket: getTicketTrpcRoute,
   getTickets: getTicketsTrpcRoute,
+  updateTicket: updateTicketTrpcRoute,
   // @endindex
 })
 

@@ -1,7 +1,8 @@
-import { ArrowLeftOutlined } from '@ant-design/icons'
-import { Button, Col, DatePicker, Form, Input, Row, Select, Spin, Upload } from 'antd'
+import { ArrowLeftOutlined, EditOutlined, CheckOutlined, CloseOutlined, ArrowRightOutlined } from '@ant-design/icons'
+import { Button, Col, DatePicker, Form, Input, Row, Select, Spin, Upload, Modal } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import dayjs from 'dayjs'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import SupportLayout from '../../components/Layout/Layout'
 import { trpc } from '../../lib/trpc'
@@ -11,9 +12,24 @@ export const TicketPage = () => {
   const { ticketId } = useParams<{ ticketId: string }>()
   const [form] = Form.useForm()
 
-  const { data, isLoading, isError, error } = trpc.getTicket.useQuery({
+  const { data, isLoading, isError, error, refetch } = trpc.getTicket.useQuery({
     ticketId: ticketId ?? '',
   })
+
+  const { data: statusesData } = trpc.getStatuses.useQuery()
+  const { data: operatorsData } = trpc.getOperators.useQuery(undefined, {
+    enabled: localStorage.getItem('role') === 'chief',
+  })
+
+  const updateStatus = trpc.updateTicket.updateStatus.useMutation()
+  const assignOperator = trpc.updateTicket.assignOperator.useMutation()
+
+  const role = localStorage.getItem('role')
+
+  const [editingStatus, setEditingStatus] = useState(false)
+  const [newStatus, setNewStatus] = useState<string>()
+  const [assignModal, setAssignModal] = useState(false)
+  const [selectedOperator, setSelectedOperator] = useState<string>()
 
   if (isLoading) {
     return (
@@ -32,6 +48,14 @@ export const TicketPage = () => {
   }
 
   const ticket = data.ticket
+
+  const colorMap: Record<string, string> = {
+    'f29f93af-51ca-4791-b345-e0beecd46b43': '#D3EBFF',
+    '74666b1d-251e-40bd-9e53-3065d861dd9c': '#FFF5D3',
+    '95a55ae5-96a4-4f58-bc35-c551935ba4b8': '#DFF7E8',
+  }
+
+  const statusColor = colorMap[ticket.status.id] || '#eee'
 
   function layoutByCustomPattern(fields: typeof ticket.field_values) {
     const total = fields.length
@@ -61,6 +85,30 @@ export const TicketPage = () => {
     }
 
     return result
+  }
+
+  const startEdit = () => {
+    setNewStatus(ticket.status.id)
+    setEditingStatus(true)
+  }
+
+  const handleStatusSave = async () => {
+    if (!newStatus) {
+      return
+    }
+    await updateStatus.mutateAsync({ ticketId: ticket.id, statusId: newStatus })
+    setEditingStatus(false)
+    refetch()
+  }
+
+  const handleAssign = async () => {
+    if (!selectedOperator) {
+      return
+    }
+    await assignOperator.mutateAsync({ ticketId: ticket.id, operatorId: selectedOperator })
+    setAssignModal(false)
+    setSelectedOperator(undefined)
+    refetch()
   }
 
   return (
@@ -136,14 +184,60 @@ export const TicketPage = () => {
               <h3>Обсуждение</h3>
             </div>
             <div className={styles.ticketPage__chatContent}>
-              <div className={styles.statusInfo}>
-                <b>Статус обращения:</b> {ticket.status.name}
+              <div className={styles.statusInfo} style={{ backgroundColor: statusColor }}>
+                <div>
+                  <b>Статус обращения: </b>
+                  {editingStatus ? (
+                    <Select
+                      value={newStatus}
+                      onChange={(v) => setNewStatus(v)}
+                      style={{ width: 200 }}
+                      options={statusesData?.statuses.map((s) => ({ value: s.id, label: s.name }))}
+                    />
+                  ) : (
+                    <span>{ticket.status.name}</span>
+                  )}
+                </div>
+                <div className={styles.icons}>
+                  {(role === 'operator' || role === 'chief') &&
+                    (editingStatus ? (
+                      <>
+                        <CheckOutlined onClick={handleStatusSave} className={styles.actionIcon} />
+                        <CloseOutlined
+                          onClick={() => {
+                            setEditingStatus(false)
+                            setNewStatus(undefined)
+                          }}
+                          className={styles.actionIcon}
+                        />
+                      </>
+                    ) : (
+                      <EditOutlined onClick={startEdit} className={styles.actionIcon} />
+                    ))}
+                  {role === 'chief' && !editingStatus && (
+                    <ArrowRightOutlined onClick={() => setAssignModal(true)} className={styles.actionIcon} />
+                  )}
+                </div>
               </div>
             </div>
             <div className={styles.ticketPage__chatInput}>
               <TextArea rows={2} placeholder="Введите сообщение..." />
               <Button type="primary">Отправить</Button>
             </div>
+            <Modal
+              open={assignModal}
+              onCancel={() => setAssignModal(false)}
+              onOk={handleAssign}
+              title="Назначить оператора для обращения"
+            >
+              <Select
+                style={{ width: '100%' }}
+                placeholder="Оператор"
+                value={selectedOperator}
+                onChange={(v) => setSelectedOperator(v)}
+                options={operatorsData?.operators.map((o) => ({ value: o.id, label: o.full_name }))}
+              />
+            </Modal>
           </div>
         </div>
       </div>
