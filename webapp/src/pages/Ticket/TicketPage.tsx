@@ -5,6 +5,9 @@ import cn from 'classnames'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import Completed from '../../assets/Completed.svg?react'
+import InWork from '../../assets/InWork.svg?react'
+import New from '../../assets/New.svg?react'
 import SupportLayout from '../../components/Layout/Layout'
 import { trpc } from '../../lib/trpc'
 import styles from './TicketPage.module.less'
@@ -18,6 +21,12 @@ export const TicketPage = () => {
   const { data, isLoading, isError, error, refetch } = trpc.getTicket.useQuery({
     ticketId: ticketId ?? '',
   })
+
+  const statusIconMap: Record<string, React.ReactNode> = {
+    'f29f93af-51ca-4791-b345-e0beecd46b43': <New />,
+    '74666b1d-251e-40bd-9e53-3065d861dd9c': <InWork />,
+    '95a55ae5-96a4-4f58-bc35-c551935ba4b8': <Completed />,
+  }
 
   const { data: statusesData } = trpc.getStatuses.useQuery()
   const { data: operatorsData } = trpc.getOperators.useQuery(undefined, {
@@ -268,6 +277,7 @@ export const TicketPage = () => {
             </div>
             <div className={styles.ticketPage__chatContent}>
               <div className={styles.statusInfo} style={{ backgroundColor: statusColor }}>
+                {statusIconMap[ticket.status.id]}
                 <div>
                   <b>Статус обращения: </b>
                   {editingStatus ? (
