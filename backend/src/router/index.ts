@@ -8,6 +8,7 @@ import { getOperatorsTrpcRoute } from './getOperators'
 import { getStatusesTrpcRoute } from './getStatuses'
 import { getTicketTrpcRoute } from './getTicket'
 import { getTicketsTrpcRoute } from './getTickets'
+import { ticketAttachmentsTrpcRoute } from './ticketAttachments'
 import { ticketMessagesTrpcRoute } from './ticketMessages'
 import { updateTicketTrpcRoute } from './updateTicket'
 // @endindex
@@ -22,6 +23,7 @@ export const trpcRouter = trpc.router({
   getStatuses: getStatusesTrpcRoute,
   getTicket: getTicketTrpcRoute,
   getTickets: getTicketsTrpcRoute,
+  ticketAttachments: ticketAttachmentsTrpcRoute,
   ticketMessages: ticketMessagesTrpcRoute,
   updateTicket: updateTicketTrpcRoute,
   // @endindex

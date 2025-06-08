@@ -1,5 +1,12 @@
-import { ArrowLeftOutlined, EditOutlined, CheckOutlined, CloseOutlined, ArrowRightOutlined } from '@ant-design/icons'
-import { Button, Col, DatePicker, Form, Input, Row, Select, Spin, Upload, Modal, message } from 'antd'
+import {
+  ArrowLeftOutlined,
+  EditOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  ArrowRightOutlined,
+  UploadOutlined,
+} from '@ant-design/icons'
+import { Button, Col, DatePicker, Form, Input, Row, Select, Spin, Upload, Modal, message, UploadFile } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import cn from 'classnames'
 import dayjs from 'dayjs'
@@ -37,6 +44,8 @@ export const TicketPage = () => {
   const assignOperator = trpc.updateTicket.assignOperator.useMutation()
   const updateFields = trpc.updateTicket.updateFields.useMutation()
   const sendMessageMutation = trpc.ticketMessages.sendMessage.useMutation()
+  const uploadFileMutation = trpc.ticketAttachments.upload.useMutation()
+  const deleteFileMutation = trpc.ticketAttachments.delete.useMutation()
 
   const { data: messagesData, refetch: refetchMessages } = trpc.ticketMessages.getMessages.useQuery(
     { ticketId: ticketId ?? '' },
@@ -50,6 +59,7 @@ export const TicketPage = () => {
   const [newStatus, setNewStatus] = useState<string>()
   const [assignModal, setAssignModal] = useState(false)
   const [selectedOperator, setSelectedOperator] = useState<string>()
+  const [files, setFiles] = useState<UploadFile[]>([])
 
   useEffect(() => {
     if (!ticketId) {
@@ -70,6 +80,17 @@ export const TicketPage = () => {
       })
       setFieldValues(initial)
       setPendingChanges({})
+      const myId = localStorage.getItem('user_id')
+      const canEdit = myId === data.ticket.user.id
+      setFiles(
+        data.ticket.attachments.map((a: any) => ({
+          uid: a.id,
+          name: a.file_name,
+          url: a.file_url,
+          status: 'done',
+          showRemoveIcon: canEdit,
+        }))
+      )
     }
   }, [data])
 
@@ -175,6 +196,43 @@ export const TicketPage = () => {
     refetch()
   }
 
+  const handleUpload = async (file: File) => {
+    const reader = new FileReader()
+    reader.onload = async () => {
+      try {
+        const res = await uploadFileMutation.mutateAsync({
+          ticketId: ticket.id,
+          fileName: file.name,
+          fileData: reader.result as string,
+        })
+        setFiles((prev) => [
+          ...prev,
+          {
+            uid: res.attachment.id,
+            name: res.attachment.file_name,
+            url: res.attachment.file_url,
+            status: 'done',
+            showRemoveIcon: true,
+          },
+        ])
+        refetch()
+      } catch {
+        message.error('Не удалось загрузить файл')
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveFile = async (file: UploadFile) => {
+    try {
+      await deleteFileMutation.mutateAsync({ attachmentId: String(file.uid) })
+      setFiles((prev) => prev.filter((f) => f.uid !== file.uid))
+      refetch()
+    } catch {
+      message.error('Не удалось удалить файл')
+    }
+  }
+
   const handleSendMessage = async () => {
     if (!messageText.trim()) {
       return
@@ -248,25 +306,33 @@ export const TicketPage = () => {
                 </Row>
               ))}
               <div className={styles.ticketPage__footer}>
-                <Form.Item label="Файлы">
+                <Form.Item>
                   <Upload
-                    fileList={ticket.attachments.map((file: any) => ({
-                      uid: file.id,
-                      name: file.file_name,
-                      url: file.file_url,
-                    }))}
+                    customRequest={({ file, onSuccess }) => {
+                      handleUpload(file as File).then(() => onSuccess && onSuccess({}, file))
+                    }}
+                    fileList={files}
+                    onRemove={handleRemoveFile}
                     showUploadList={{ showDownloadIcon: true }}
-                  />
-                </Form.Item>
-                <div className={styles.ticketPage__actions}>
-                  <Button
-                    type="primary"
-                    onClick={handleSaveFields}
-                    disabled={isCompleted || Object.keys(pendingChanges).length === 0}
+                    maxCount={3}
+                    disabled={isCompleted || role !== 'user' || localStorage.getItem('user_id') !== ticket.user.id}
                   >
-                    Сохранить
-                  </Button>
-                </div>
+                    {role === 'user' && localStorage.getItem('user_id') === ticket.user.id && !isCompleted && (
+                      <Button icon={<UploadOutlined />}>Загрузить</Button>
+                    )}
+                  </Upload>
+                </Form.Item>
+                {role === 'user' && localStorage.getItem('user_id') === ticket.user.id && (
+                  <div className={styles.ticketPage__actions}>
+                    <Button
+                      type="primary"
+                      onClick={handleSaveFields}
+                      disabled={isCompleted || Object.keys(pendingChanges).length === 0}
+                    >
+                      Сохранить
+                    </Button>
+                  </div>
+                )}
               </div>
             </Form>
           </div>

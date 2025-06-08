@@ -18,6 +18,7 @@ export const LoginPage = () => {
       storage.setItem('token', response.token)
       storage.setItem('role', response.user.role)
       storage.setItem('full_name', response.user.full_name)
+      storage.setItem('user_id', response.user.id)
 
       navigate('/') // или /my-tickets — куда по роли решим позже
     } catch (error) {
