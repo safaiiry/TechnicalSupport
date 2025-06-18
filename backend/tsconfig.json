@@ -18,7 +18,8 @@
     "resolveJsonModule": true,
     "inlineSources": true,
     "isolatedModules": false,
-    "lib": ["ES2021"],
+    "lib": ["ES2021", "DOM"],
+    "types": ["node"], 
     "module": "ESNext",
     "moduleResolution": "Node",
     "target": "ES2020"

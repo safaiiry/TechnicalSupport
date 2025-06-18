@@ -6,6 +6,7 @@ import {
   ArrowRightOutlined,
   UploadOutlined,
 } from '@ant-design/icons'
+import type { TicketFieldValue } from '@technicalsupport/backend/src/lib/types'
 import { Button, Col, DatePicker, Form, Input, Row, Select, Spin, Upload, Modal, message, UploadFile } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import cn from 'classnames'
@@ -75,7 +76,7 @@ export const TicketPage = () => {
   useEffect(() => {
     if (data?.ticket) {
       const initial: Record<string, string> = {}
-      data.ticket.field_values.forEach((fv) => {
+      data.ticket.field_values.forEach((fv: TicketFieldValue) => {
         initial[fv.id] = fv.value
       })
       setFieldValues(initial)
@@ -261,7 +262,7 @@ export const TicketPage = () => {
             <Form form={form} layout="vertical">
               {layoutByCustomPattern(ticket.field_values).map((group, idx) => (
                 <Row gutter={16} key={idx}>
-                  {group.fields.map((fv) => {
+                  {group.fields.map((fv: TicketFieldValue) => {
                     const field = fv.field
                     const editable = role === 'user' && !isCompleted
                     const value = fieldValues[fv.id]
