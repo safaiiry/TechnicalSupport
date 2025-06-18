@@ -2,6 +2,7 @@ import { SearchOutlined } from '@ant-design/icons'
 import { Button, Table, Input, Select, Form, Spin } from 'antd'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import EmptyIcon from '../../assets/EmptyIcon.svg?react'
 import SupportLayout from '../../components/Layout/Layout'
 import { getViewTicketRoute } from '../../lib/routes'
 import { trpc } from '../../lib/trpc'
@@ -147,6 +148,14 @@ export const TicketsPage = () => {
               rowKey="id"
               dataSource={data?.tickets || []}
               pagination={{ showSizeChanger: false }}
+              locale={{
+                emptyText: (
+                  <div className={styles.emptyBlock}>
+                    <EmptyIcon />
+                    <div className={styles.emptyText}>У вас пока нет заявок</div>
+                  </div>
+                ),
+              }}
               onRow={(record) => ({
                 onClick: () => navigate(getViewTicketRoute({ ticketId: String(record.id) })),
               })}

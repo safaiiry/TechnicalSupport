@@ -3,6 +3,7 @@ import { Layout as AntLayout, Tooltip } from 'antd'
 import React, { ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import GornyEmblem from '../../assets/GornyEmblem.svg?react'
+import { getItem, removeItem } from '../../lib/storage'
 import styles from './Layout.module.less'
 
 const { Header, Content } = AntLayout
@@ -14,10 +15,14 @@ type ISupportLayout = {
 export const SupportLayout: React.FC<ISupportLayout> = ({ children }) => {
   const location = useLocation()
   const navigate = useNavigate()
-  const role = localStorage.getItem('role')
+  const role = getItem('role')
 
   const handleLogout = () => {
     localStorage.removeItem('token')
+    removeItem('token')
+    removeItem('role')
+    removeItem('full_name')
+    removeItem('user_id')
     navigate('/login')
   }
 

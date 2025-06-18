@@ -17,13 +17,14 @@ import Completed from '../../assets/Completed.svg?react'
 import InWork from '../../assets/InWork.svg?react'
 import New from '../../assets/New.svg?react'
 import SupportLayout from '../../components/Layout/Layout'
+import { getItem } from '../../lib/storage'
 import { trpc } from '../../lib/trpc'
 import styles from './TicketPage.module.less'
 
 export const TicketPage = () => {
   const { ticketId } = useParams<{ ticketId: string }>()
   const [form] = Form.useForm()
-  const role = localStorage.getItem('role')
+  const role = getItem('role')
   const isChief = role === 'chief'
 
   const { data, isLoading, isError, error, refetch } = trpc.getTicket.useQuery({
@@ -81,7 +82,7 @@ export const TicketPage = () => {
       })
       setFieldValues(initial)
       setPendingChanges({})
-      const myId = localStorage.getItem('user_id')
+      const myId = getItem('user_id')
       const canEdit = myId === data.ticket.user.id
       setFiles(
         data.ticket.attachments.map((a: any) => ({
@@ -316,14 +317,14 @@ export const TicketPage = () => {
                     onRemove={handleRemoveFile}
                     showUploadList={{ showDownloadIcon: true }}
                     maxCount={3}
-                    disabled={isCompleted || role !== 'user' || localStorage.getItem('user_id') !== ticket.user.id}
+                    disabled={isCompleted || role !== 'user' || getItem('user_id') !== ticket.user.id}
                   >
-                    {role === 'user' && localStorage.getItem('user_id') === ticket.user.id && !isCompleted && (
+                    {role === 'user' && getItem('user_id') === ticket.user.id && !isCompleted && (
                       <Button icon={<UploadOutlined />}>Загрузить</Button>
                     )}
                   </Upload>
                 </Form.Item>
-                {role === 'user' && localStorage.getItem('user_id') === ticket.user.id && (
+                {role === 'user' && getItem('user_id') === ticket.user.id && (
                   <div className={styles.ticketPage__actions}>
                     <Button
                       type="primary"
@@ -390,7 +391,7 @@ export const TicketPage = () => {
                 </div>
               </div>
               {messagesData?.messages.map((msg) => {
-                const fullName = localStorage.getItem('full_name')
+                const fullName = getItem('full_name')
                 const isMine = msg.author === fullName
                 return (
                   <div

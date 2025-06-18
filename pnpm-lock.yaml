@@ -130,9 +130,15 @@ importers:
       prisma:
         specifier: ^6.6.0
         version: 6.7.0(typescript@5.1.6)
+      ts-node:
+        specifier: 10.9.1
+        version: 10.9.1(@types/node@20.5.0)(typescript@5.1.6)
       tsx:
         specifier: ^4.19.4
         version: 4.19.4
+      typescript:
+        specifier: 5.1.6
+        version: 5.1.6
 
   webapp:
     dependencies:

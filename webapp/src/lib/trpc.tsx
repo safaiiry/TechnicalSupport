@@ -3,6 +3,7 @@ import type { TrpcRouter } from '@technicalsupport/backend/src/router'
 import { httpBatchLink } from '@trpc/client'
 import { createTRPCReact } from '@trpc/react-query'
 import SuperJSON from 'superjson'
+import { getItem } from './storage'
 
 export const trpc = createTRPCReact<TrpcRouter>()
 
@@ -21,7 +22,7 @@ const trpcClient = trpc.createClient({
     httpBatchLink({
       url: 'http://localhost:3000/trpc',
       headers: () => {
-        const token = localStorage.getItem('token')
+        const token = getItem('token')
         return token ? { Authorization: `Bearer ${token}` } : {}
       },
     }),
