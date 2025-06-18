@@ -446,6 +446,7 @@ export const TicketPage = () => {
               onCancel={() => setAssignModal(false)}
               onOk={handleAssign}
               title="Назначить оператора для обращения"
+              cancelText="Отмена"
             >
               <Select
                 style={{ width: '100%' }}

@@ -14,6 +14,7 @@ type ISupportLayout = {
 export const SupportLayout: React.FC<ISupportLayout> = ({ children }) => {
   const location = useLocation()
   const navigate = useNavigate()
+  const role = localStorage.getItem('role')
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -25,18 +26,28 @@ export const SupportLayout: React.FC<ISupportLayout> = ({ children }) => {
       <Header className={styles.layout__header}>
         <GornyEmblem style={{ marginTop: '6px' }} />
         <div className={styles.layout__nav}>
-          <Link
-            to="/"
-            className={`${styles.layout__navItem} ${location.pathname === '/' ? styles.layout__navItem_active : ''}`}
-          >
-            Обратиться за помощью
-          </Link>
+          {role === 'user' && (
+            <Link
+              to="/"
+              className={`${styles.layout__navItem} ${location.pathname === '/' ? styles.layout__navItem_active : ''}`}
+            >
+              Обратиться за помощью
+            </Link>
+          )}
           <Link
             to="/my-tickets"
             className={`${styles.layout__navItem} ${location.pathname === '/my-tickets' ? styles.layout__navItem_active : ''}`}
           >
             Мои обращения
           </Link>
+          {role === 'chief' && (
+            <Link
+              to="/analytics"
+              className={`${styles.layout__navItem} ${location.pathname === '/analytics' ? styles.layout__navItem_active : ''}`}
+            >
+              Аналитика
+            </Link>
+          )}
           <Link
             to="/faq"
             className={`${styles.layout__navItem} ${location.pathname === '/faq' ? styles.layout__navItem_active : ''}`}

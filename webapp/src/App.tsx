@@ -4,6 +4,7 @@ import { TrpcProvider } from './lib/trpc'
 import 'antd/dist/reset.css'
 import './styles/global.less'
 
+import { AnalyticsPage } from './pages/Analytics/AnalyticsPage'
 import { LoginPage } from './pages/Login/LoginPage'
 import { MainPage } from './pages/Main/MainPage'
 import { TicketPage } from './pages/Ticket/TicketPage'
@@ -29,6 +30,14 @@ export const App = () => {
             element={
               <PrivateRoute>
                 <TicketsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <PrivateRoute>
+                <AnalyticsPage />
               </PrivateRoute>
             }
           />
