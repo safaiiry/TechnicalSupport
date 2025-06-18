@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { getAllTicketsRoute, getViewTicketRoute, viewTicketRouteParams } from './lib/routes'
+import { getAllTicketsRoute, getViewTicketRoute, viewTicketRouteParams, getFaqRoute } from './lib/routes'
 import { TrpcProvider } from './lib/trpc'
 import 'antd/dist/reset.css'
 import './styles/global.less'
 
 import { AnalyticsPage } from './pages/Analytics/AnalyticsPage'
+import { FAQPage } from './pages/FAQ/FAQPage'
 import { LoginPage } from './pages/Login/LoginPage'
 import { MainPage } from './pages/Main/MainPage'
 import { TicketPage } from './pages/Ticket/TicketPage'
@@ -46,6 +47,14 @@ export const App = () => {
             element={
               <PrivateRoute>
                 <TicketPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path={getFaqRoute()}
+            element={
+              <PrivateRoute>
+                <FAQPage />
               </PrivateRoute>
             }
           />

@@ -7,3 +7,4 @@ export const getAllTicketsRoute = () => '/'
 export const viewTicketRouteParams = getRouteParams({ ticketId: true })
 export type ViewTicketsRouteParams = typeof viewTicketRouteParams
 export const getViewTicketRoute = ({ ticketId }: ViewTicketsRouteParams) => `/tickets/${ticketId}`
+export const getFaqRoute = () => '/faq'
