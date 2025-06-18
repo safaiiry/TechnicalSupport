@@ -15,6 +15,17 @@ export const authTrpcRoute = router({
         password: z.string(),
       })
     )
+    .output(
+      z.object({
+        token: z.string(),
+        user: z.object({
+          id: z.string(),
+          full_name: z.string(),
+          role: z.enum(['user', 'operator', 'chief']),
+        }),
+      })
+    )
+    .meta({ openapi: { method: 'POST', path: '/login' } })
     .mutation(async ({ input, ctx }) => {
       const user = await ctx.prisma.user.findUnique({
         where: { login: input.login },

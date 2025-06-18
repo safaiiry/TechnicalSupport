@@ -12,6 +12,8 @@ export const getTicketsTrpcRoute = router({
         created_at: z.string().optional(),
       })
     )
+    .output(z.object({ tickets: z.array(z.any()) }))
+    .meta({ openapi: { method: 'GET', path: '/tickets' } })
     .query(async ({ ctx, input }) => {
       const userId = ctx.user?.id
       const role = ctx.user?.role

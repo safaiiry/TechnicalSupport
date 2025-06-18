@@ -2,10 +2,11 @@ import { initTRPC } from '@trpc/server'
 import * as trpcExpress from '@trpc/server/adapters/express'
 import { type Express } from 'express'
 import SuperJSON from 'superjson'
+import { type OpenApiMeta } from 'trpc-openapi'
 import { type TrpcRouter } from '../router'
 import { createContext } from './ctx'
 
-export const trpc = initTRPC.context<typeof createContext>().create({
+export const trpc = initTRPC.context<typeof createContext>().meta<OpenApiMeta>().create({
   transformer: SuperJSON,
 })
 

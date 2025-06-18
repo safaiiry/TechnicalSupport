@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import express from 'express'
 import { AppContext, createAppContext } from './lib/ctx'
 import { applyTrpcToExpressApp } from './lib/trpc'
+import { applyOpenApiToExpressApp } from './openapi'
 import { trpcRouter } from './router'
 
 dotenv.config()
@@ -20,6 +21,7 @@ void (async () => {
     })
 
     applyTrpcToExpressApp(expressApp, trpcRouter)
+    applyOpenApiToExpressApp(expressApp, trpcRouter)
 
     expressApp.listen(3000, () => {
       console.info('Listening at http://localhost:3000')

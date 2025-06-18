@@ -10,6 +10,8 @@ export const ticketAttachmentsTrpcRoute = router({
         fileData: z.string(),
       })
     )
+    .output(z.object({ attachment: z.any() }))
+    .meta({ openapi: { method: 'POST', path: '/tickets/{ticketId}/attachments' } })
     .mutation(async ({ ctx, input }) => {
       const ticket = await ctx.prisma.ticket.findUnique({
         where: { id: input.ticketId },
@@ -30,18 +32,22 @@ export const ticketAttachmentsTrpcRoute = router({
       })
       return { attachment }
     }),
-  delete: protectedProcedure.input(z.object({ attachmentId: z.string().uuid() })).mutation(async ({ ctx, input }) => {
-    const attachment = await ctx.prisma.attachment.findUnique({
-      where: { id: input.attachmentId },
-      include: { ticket: { select: { user_id: true } } },
-    })
-    if (!attachment) {
-      throw new Error('NOT_FOUND')
-    }
-    if (attachment.ticket.user_id !== ctx.user!.id) {
-      throw new Error('FORBIDDEN')
-    }
-    await ctx.prisma.attachment.delete({ where: { id: input.attachmentId } })
-    return { success: true }
-  }),
+  delete: protectedProcedure
+    .input(z.object({ attachmentId: z.string().uuid() }))
+    .output(z.object({ success: z.boolean() }))
+    .meta({ openapi: { method: 'DELETE', path: '/attachments/{attachmentId}' } })
+    .mutation(async ({ ctx, input }) => {
+      const attachment = await ctx.prisma.attachment.findUnique({
+        where: { id: input.attachmentId },
+        include: { ticket: { select: { user_id: true } } },
+      })
+      if (!attachment) {
+        throw new Error('NOT_FOUND')
+      }
+      if (attachment.ticket.user_id !== ctx.user!.id) {
+        throw new Error('FORBIDDEN')
+      }
+      await ctx.prisma.attachment.delete({ where: { id: input.attachmentId } })
+      return { success: true }
+    }),
 })

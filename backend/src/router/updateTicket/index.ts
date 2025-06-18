@@ -9,6 +9,8 @@ export const updateTicketTrpcRoute = router({
         statusId: z.string().uuid(),
       })
     )
+    .output(z.object({ success: z.boolean() }))
+    .meta({ openapi: { method: 'POST', path: '/tickets/{ticketId}/status' } })
     .mutation(async ({ ctx, input }) => {
       if (!['operator', 'chief'].includes(ctx.user!.role)) {
         throw new Error('FORBIDDEN')
@@ -28,6 +30,8 @@ export const updateTicketTrpcRoute = router({
         operatorId: z.string().uuid(),
       })
     )
+    .output(z.object({ success: z.boolean() }))
+    .meta({ openapi: { method: 'POST', path: '/tickets/{ticketId}/assignee' } })
     .mutation(async ({ ctx, input }) => {
       if (ctx.user!.role !== 'chief') {
         throw new Error('FORBIDDEN')
@@ -53,6 +57,8 @@ export const updateTicketTrpcRoute = router({
         ),
       })
     )
+    .output(z.object({ success: z.boolean() }))
+    .meta({ openapi: { method: 'POST', path: '/tickets/{ticketId}/fields' } })
     .mutation(async ({ ctx, input }) => {
       const ticket = await ctx.prisma.ticket.findUnique({
         where: { id: input.ticketId },

@@ -14,6 +14,8 @@ export const createTicketTrpcRoute = router({
         ),
       })
     )
+    .output(z.object({ ticketId: z.string().uuid() }))
+    .meta({ openapi: { method: 'POST', path: '/tickets' } })
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.user!.id
 
